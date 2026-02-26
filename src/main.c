@@ -18,4 +18,7 @@ int main(int argc, char* argv[]) {
 	transport_config config;
 	config.c2t = transportpipe;
 	config.t2c = clientpipes;
+	init_transport(config);
+	init_clients(config, 5);
+
 }

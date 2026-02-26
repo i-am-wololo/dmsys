@@ -8,12 +8,12 @@ typedef struct {
 	uint16_t portnumber; 
 	uint16_t datanumber;
 	uint16_t length;
-	uint16_t checksum;
 	uint16_t source; //  id du client
+	uint16_t checksum;
 } Header;
 
 void print_header(Header* h);
-void serialize(Header* h, int* data, int* pipe);
-Header* deserialize(int* pipe);
+void serialize(Header* h, int* data, int pipe[2]);
+Header* deserialize(int pipe[2]);
 
 #endif

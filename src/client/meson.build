@@ -1,5 +1,8 @@
 modclients = library('modclients', 
-  ['./client.c']
+  [
+    './client.c',
+    '../utils.c'
+  ]
 )
 
 modclient_dep = declare_dependency(

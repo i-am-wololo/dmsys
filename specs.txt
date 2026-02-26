@@ -1,0 +1,11 @@
+# specs
+un client envoie 10 messages suivant cette structure:
+struct message {
+	short port;  
+	short msgnum;
+	int[2000] data;
+	short checksum;
+} 
+
+
+

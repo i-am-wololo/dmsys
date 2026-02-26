@@ -1,6 +1,8 @@
 modtransport = library('modtransport', 
   [
-    './core_transport.c'
+    './core_transport.c',
+    '../common.c',
+    '../utils.c'
     ]
 )
 

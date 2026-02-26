@@ -1,0 +1,5 @@
+pour faire fonctionner le projet:
+	- installer meson (sur wsl ou linux)
+	- lancer "meson setup build" dans le terminal afin de generer le dossier de compilation
+	- puis "ninja" pour compiler les fichiers generes par meson
+les executables seront dans src
