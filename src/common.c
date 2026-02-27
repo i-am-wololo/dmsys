@@ -5,14 +5,14 @@
 #include <stdlib.h>
 #include "./common.h"
 
-// envoie l'entête au tube
-void serialize(Header* h, int* data, int pipe[2]) {
+// envoie l'entête et les données au tube
+void serialize(Header* h, uint32_t* data, int pipe[2]) {
 	write(pipe[1], &h->portnumber, sizeof(uint16_t));
 	write(pipe[1], &h->datanumber, sizeof(uint16_t));
 	write(pipe[1], &h->length, sizeof(uint16_t));
 	write(pipe[1], &h->source, sizeof(uint16_t));
 	write(pipe[1], &h->checksum, sizeof(uint16_t));
-	write(pipe[1], data, sizeof(int)*h->length);
+	write(pipe[1], data, sizeof(uint32_t)*h->length);
 }
 
 // gère seulement la lecture d'entête!

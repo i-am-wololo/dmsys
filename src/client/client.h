@@ -6,5 +6,4 @@
 #include <sys/wait.h>
 
 
-void init_client(transport_config config, int id);
 void init_clients(transport_config config, uint8_t clientsnumber);

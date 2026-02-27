@@ -12,8 +12,12 @@ typedef struct {
 	uint16_t checksum;
 } Header;
 
+// je viens de m'en rendre compte
+// le champs source est redondant car un client N envoie à un port N
+// donc portnumber aurait très bien pu être utilisé par le transport pour savoir où envoyer la réponse
+
 void print_header(Header* h);
-void serialize(Header* h, int* data, int pipe[2]);
+void serialize(Header* h, uint32_t* data, int pipe[2]);
 Header* deserialize(int pipe[2]);
 
 #endif

@@ -1,6 +1,7 @@
 #include "./utils.h"
+#include <stdint.h>
 
-uint16_t compute_checksum(Header* h, int* data) {
+uint16_t compute_checksum(Header* h, uint32_t* data) {
 	/*
 	 * le TCP calcule le checksum comme tel:
 	 * res = somme de tout les mots de 16 bits
