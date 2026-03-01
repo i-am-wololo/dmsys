@@ -1,1 +1,4 @@
-./build/
+build/
+.envrc
+.cache/
+.direnv

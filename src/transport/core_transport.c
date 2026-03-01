@@ -15,6 +15,8 @@ void init_transport(transport_config config) {
 		int* t2c; 
 		int response;
 		close(config.c2t[1]);
+		for (int i = 0; i<CLIENTNUMBER; close(config.t2c[i++][0]));
+
 		printf("TRANSPORT: reading from clients2transport pipe...\n");
 		Header* header;
 		while ((header = deserialize(config.c2t)) != NULL) {
@@ -22,21 +24,35 @@ void init_transport(transport_config config) {
 			dynbuffer = malloc(sizeof(uint32_t)*header->length);
 			print_header(header);
 			t2c = config.t2c[header->source]; // response pipe
-			close(t2c[0]); 
 			read(config.c2t[0], dynbuffer, sizeof(uint32_t)*header->length);
 			printf("computing checksum...\n");
-			if(compute_checksum(header, dynbuffer) == header->checksum) {
+			uint16_t checksum = compute_checksum(header, dynbuffer);
+			if( checksum == header->checksum) {
 				printf("TRANSPORT: checksum ok!\n");
 				if (config.ports[header->portnumber] == -1) {
 					printf("TRANSPORT: port non occupé\n");
 					response = 2;
+
+				} else {
+					// bloc d'envoie
+#ifdef PIPEBUILD
+					printf("TRANSPORT: pipe version\n");
+					serialize_server_pipe(header, dynbuffer, config.t2s[header->portnumber]);
+#endif
+#ifdef SHMBUILD
+					printf("shmbuild\n");
+						// serialize_server_shm();
+#endif
+#ifdef MSGQUEUEBUILD
+						printf("msgqueue a faire\n");
+#endif
 				}
 			} else {
-				printf("TRANSPORT: checksum not ok\n");
+				printf("TRANSPORT: checksum not ok, expected checksum %u\n", checksum);
 				response = 1;
 			}
 			write(t2c[1], &response, sizeof(int));
-			printf("TRANSPORT: response %d to client %d", response, header->source);
+			printf("TRANSPORT: response %d to client %d\n", response, header->source);
 			free(header);
 			free(dynbuffer);
 		}

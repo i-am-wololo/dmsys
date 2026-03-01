@@ -6,20 +6,13 @@
 #include <sys/shm.h>
 #include <unistd.h>
 #include "../utils.h"
+#define MSGLEN 1
 
 struct stats {
 	int loss;
 	int fchecksum; // normalement si tout ce passe bien ce champs devrait tout le temps être a 0
 	int ok;
 };
-
-// int dummy_data[][8] = {
-// 	{1, 3, 4, 5, 8, 0, 1, 9},
-// 	{1, 4},
-// 	{9, 1, 8, 2, 3},
-// 	{1, 0, 8, 3, 4, 9, 21},
-// 	{12, 331, 90318, 121, 12}
-// };
 
 
 uint32_t* create_data(Header* header, uint len, int id) {
@@ -51,17 +44,17 @@ void init_client(transport_config config, int id, uint datalen, uint msgnum, str
 		header.datanumber = i;
 		header.portnumber = id;
 		header.source = id;
-		// header.length = 8;
 		
 		header.checksum = compute_checksum(&header, data);
 		serialize(&header, data, sendpipe);
-		read(recvpipe[0], &response, sizeof(int));
+		read(recvpipe[0], &response, sizeof(int)); // possible interblocge ici
+		printf("reponse reçu: %d \n", response);
 		switch (response) {
 			case 0:
-				stats->ok++;
+				stats->ok++; break;
 
 			case 1:
-				stats->fchecksum++;
+				stats->fchecksum++; break;
 
 			case 2:
 				stats->loss++;
@@ -84,7 +77,7 @@ void init_clients(transport_config config, uint8_t clientsnumber) {
 			shmdt(config.ports);
 			printf("client %d créé, en attente\n", i);
 			sleep(1);
-			init_client(config, i, 2000, 10, stats);
+			init_client(config, i, MSGLEN, 10, stats);
 		}
 	}
 	printf("fin de création des clients\n");
@@ -92,12 +85,12 @@ void init_clients(transport_config config, uint8_t clientsnumber) {
 			wait(NULL);
 			printf("un client récupéré \n");
 	}
-	printf("fin des clients, fermeture du tube transport");
+	printf("fin des clients, fermeture du tube transport\n");
 	printf(
 			"!! stats clients !!\n"
-			"paquets ok: %d"
-			"paquets avec checksum faux: %d"
-			"paquets perdus: %d",
+			"paquets ok: %d\n"
+			"paquets avec checksum faux: %d\n"
+			"paquets perdus: %d\n",
 			stats->ok, stats->fchecksum, stats->loss
 				
 			);

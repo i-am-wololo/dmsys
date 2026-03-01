@@ -1,18 +1,33 @@
+#include <stddef.h>
 #include <stdint.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "./common.h"
 
 // envoie l'entête et les données au tube
+// on a remarqué que sans synchronisation, plusieurs clients peuvent écrire en même temps
+// ainsi corrompant les données. deux solutions:
+// 1- condenser tout les writes en un seul (solution choisie)
+// 2- introduire des semaphores pour bloquer les autres clients quand un est en train d'écrire
+// on a pas besoin de faire pareil pour deserialize
 void serialize(Header* h, uint32_t* data, int pipe[2]) {
-	write(pipe[1], &h->portnumber, sizeof(uint16_t));
-	write(pipe[1], &h->datanumber, sizeof(uint16_t));
-	write(pipe[1], &h->length, sizeof(uint16_t));
-	write(pipe[1], &h->source, sizeof(uint16_t));
-	write(pipe[1], &h->checksum, sizeof(uint16_t));
-	write(pipe[1], data, sizeof(uint32_t)*h->length);
+	size_t taille = sizeof(Header) + (h->length*sizeof(uint32_t));
+	char* buffer = malloc(taille);
+	if (buffer) {
+		memcpy(buffer, h, sizeof(Header));
+		memcpy(buffer+sizeof(Header), data, h->length*sizeof(uint32_t));
+	}
+	write(pipe[1], buffer, taille);
+	// write(pipe[1], &h->portnumber, sizeof(uint16_t));
+	// write(pipe[1], &h->datanumber, sizeof(uint16_t));
+	// write(pipe[1], &h->length, sizeof(uint16_t));
+	// write(pipe[1], &h->source, sizeof(uint16_t));
+	// write(pipe[1], &h->checksum, sizeof(uint16_t));
+	// write(pipe[1], data, sizeof(uint32_t)*h->length);
+	free(buffer);
 }
 
 // gère seulement la lecture d'entête!
