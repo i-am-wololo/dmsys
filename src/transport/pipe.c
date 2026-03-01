@@ -18,6 +18,7 @@ void serialize_server_pipe(Header *h, uint32_t *data, int* pipe) {
 	if (buffer) {
 		memcpy(buffer, &sh, sizeof(ServerHeader));
 		memcpy(buffer+sizeof(ServerHeader), data, sh.length*sizeof(uint32_t));
+		write(pipe[1], buffer, taille);
 	}
-	write(pipe[1], buffer, taille);
+	free(buffet)
 }
