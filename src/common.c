@@ -34,7 +34,11 @@ void serialize(Header* h, uint32_t* data, int pipe[2]) {
 // le ramassage de données doit se faire manuellement après
 Header* deserialize(int pipe[2]) {
 	Header* header = malloc(sizeof(Header));
-	read(pipe[0], &header->portnumber, sizeof(uint16_t));
+	int n = read(pipe[0], &header->portnumber, sizeof(uint16_t));
+	if (n <= 0) {
+			free(header);
+			return NULL;
+	}
 	read(pipe[0], &header->datanumber, sizeof(uint16_t));
 	read(pipe[0], &header->length, sizeof(uint16_t));
 	read(pipe[0], &header->source, sizeof(uint16_t));
@@ -53,4 +57,33 @@ void print_header(Header* h) {
 			"source: %hu\n",
 			h->portnumber, h->datanumber, h->length, h->checksum, h->source
 		);
+}
+
+
+void P(int semid) {
+    struct sembuf op = {0, -1, 0}; // Décrémente (attend que le sémaphore soit > 0)
+    semop(semid, &op, 1);
+}
+
+void V(int semid) {
+    struct sembuf op = {0, 1, 0};  // Incrémente (libère)
+    semop(semid, &op, 1);
+}
+
+void Pmult(int semid, int sem_index) {
+	struct sembuf op = {
+		.sem_num = sem_index,
+		.sem_op = -1,
+		.sem_flg = 0
+	};
+	semop(semid, &op, 1);
+}
+
+void Vmult(int semid, int sem_index) {
+	struct sembuf op = {
+		.sem_num = sem_index,
+		.sem_op = +1,
+		.sem_flg = 0
+	};
+	semop(semid, &op, 1);
 }

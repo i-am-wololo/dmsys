@@ -1,13 +1,16 @@
-#include "../utils.h"
-#include "../server/server.h"
+#include <sys/types.h>
+#include "../common.h"
 #include <stdint.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include "./transport.h"
+#include "../utils.h"
 
-// converti le header client en header server, puis l'écrit
-void serialize_server_pipe(Header *h, uint32_t *data, int* pipe) {
+
+// presque pareil que pipe
+void serialize_server_shm(Header *h, uint32_t *data, char *shmptr, int sem_ctrl) {
 	size_t taille = sizeof(ServerHeader) + (h->length * sizeof(uint32_t));
 	char* buffer = malloc(taille);
 
@@ -19,7 +22,9 @@ void serialize_server_pipe(Header *h, uint32_t *data, int* pipe) {
 	if (buffer) {
 		memcpy(buffer, &sh, sizeof(ServerHeader));
 		memcpy(buffer+sizeof(ServerHeader), data, sh.length*sizeof(uint32_t));
-		write(pipe[1], buffer, taille);
+		memcpy(shmptr, buffer, taille);
 	}
+
+	Vmult(sem_ctrl, h->portnumber);
 	free(buffer);
 }

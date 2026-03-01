@@ -5,3 +5,5 @@
 
 uint16_t compute_checksum(Header* h, uint32_t* data);
 
+uint16_t compute_server_checksum(uint32_t* databuf, uint32_t data_length);
+

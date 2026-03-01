@@ -6,7 +6,9 @@
 #include <sys/shm.h>
 #include <unistd.h>
 #include "../utils.h"
-#define MSGLEN 1
+
+#define MSGLEN 10
+#define MSGNB 3
 
 struct stats {
 	int loss;
@@ -17,7 +19,7 @@ struct stats {
 
 uint32_t* create_data(Header* header, uint len, int id) {
 	uint32_t* data = malloc(sizeof(uint32_t)*len);
-	srand(12345+id);
+	srand(123456+id);
 	for (int i = 0; i<len; i++) {
 		data[i] = rand()%300;
 	}
@@ -35,7 +37,7 @@ void init_client(transport_config config, int id, uint datalen, uint msgnum, str
 	close(sendpipe[0]);
 	close(recvpipe[1]);
 
-	sleep(rand()%5);
+	sleep(rand()%3);
 	printf("commencement d'envoie de données pour client %d\n", id);
 	for (int i = 0; i < msgnum; i++) {
 		Header header;
@@ -61,6 +63,7 @@ void init_client(transport_config config, int id, uint datalen, uint msgnum, str
 		}
 	}
 	close(sendpipe[1]);
+	printf("fin client %d\n", id);
 	exit(0);
 };
 
@@ -77,9 +80,10 @@ void init_clients(transport_config config, uint8_t clientsnumber) {
 			shmdt(config.ports);
 			printf("client %d créé, en attente\n", i);
 			sleep(1);
-			init_client(config, i, MSGLEN, 10, stats);
+			init_client(config, i, MSGLEN, MSGNB, stats);
 		}
 	}
+	close(config.c2t[1]);
 	printf("fin de création des clients\n");
 	for (int i = 0; i < clientsnumber; i++) {
 			wait(NULL);

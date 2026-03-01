@@ -6,6 +6,8 @@ foreach build: builds
     [
       './core_transport.c',
       'pipe.c',
+      'shm.c',
+      'msgq.c',
       '../common.c',
       '../utils.c'
       ],

@@ -4,11 +4,11 @@ modserver_deps = {}
 foreach build: builds
   libmod = library('modserver'+build.to_lower(),
     [
-        './server.c',
         './serverpipe.c',
-        # 'servershm.c',
-        # 'servermsg.c',
-      '../common.c'
+        './servershm.c',
+        './servermsgq.c',
+        '../common.c',
+        '../utils.c'
     ],
     c_args: ['-D'+build]
   )

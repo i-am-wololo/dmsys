@@ -1,8 +1,10 @@
 #ifndef DM_COMMON
 #define DM_COMMON
+#include <sys/sem.h>
 #include <stdint.h>
-#define CLIENTNUMBER 5
-#define SERVERNUMBER 20
+#define CLIENTNUMBER 3
+#define SERVERNUMBER 2
+#define MAX_SIZE 2048
 
 // definition de l'entête
 // pendant les communication, les champs devront être envoyés dans cette ordre!
@@ -25,9 +27,28 @@ typedef struct {
 	uint16_t checksum;
 } ServerHeader;
 
+// pour msgqueue, msgsnd et msgrcv s'attendent a un buffer ou les premiers bytes est le type.
+// ce buffer peut etre organise de plusieurs facons, ici j'ai fait un struct
+typedef struct {
+	long mtype; // servira de port
+	ServerHeader sh;
+	uint32_t data[MAX_SIZE];
+} MQPacket;
+
+// fonctions sémaphore
+void P(int semid);
+void V(int semid);
+
+void Pmult(int semid, int sem_index);
+void Vmult(int semid, int sem_index);
+
 
 void print_header(Header* h);
 void serialize(Header* h, uint32_t* data, int pipe[2]);
 Header* deserialize(int pipe[2]);
 
+
 #endif
+
+
+
